@@ -20,6 +20,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory for generated IR, analysis, and report artifacts.",
     )
 
+    loop_example = subparsers.add_parser("analyze-loop-example", help="Run the built-in iterative loop example.")
+    loop_example.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("artifacts/iterative_counter"),
+        help="Directory for generated IR, analysis, and report artifacts.",
+    )
+
     module = subparsers.add_parser("analyze-module", help="Analyze a graph object or factory from a module path.")
     module.add_argument("graph", help="Module spec in the form package.module:attr")
     module.add_argument(
@@ -52,6 +60,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "analyze-example":
         graph_obj = load_object("orqis.examples.doc_summariser:build_graph")
         sample_input = load_object("orqis.examples.doc_summariser:get_sample_input")()
+        bundle = compile_graph(graph_obj, sample_input=sample_input)
+        report_path = write_artifacts(bundle, args.output_dir)
+        print(f"Analyzed `{bundle.graph_id}`.")
+        print(f"Artifacts written to `{args.output_dir}`.")
+        print(f"Report: `{report_path}`")
+        return 0
+
+    if args.command == "analyze-loop-example":
+        graph_obj = load_object("orqis.examples.iterative_counter:build_graph")
+        sample_input = load_object("orqis.examples.iterative_counter:get_sample_input")()
         bundle = compile_graph(graph_obj, sample_input=sample_input)
         report_path = write_artifacts(bundle, args.output_dir)
         print(f"Analyzed `{bundle.graph_id}`.")

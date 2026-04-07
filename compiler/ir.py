@@ -216,8 +216,14 @@ class FanoutRegionIR:
 class LoopIR:
     component_id: str
     members: list[str] = field(default_factory=list)
+    entry_nodes: list[str] = field(default_factory=list)
+    exit_nodes: list[str] = field(default_factory=list)
+    cycle_edges: list[str] = field(default_factory=list)
     kind: str = "acyclic"
+    termination_style: str = "none"
+    scheduler_hint: str = "no_special_handling"
     requires_loop_capable_orchestrator: bool = False
+    notes: list[str] = field(default_factory=list)
 
 # result of asking whether caching is safe and useful for one node
 @dataclass(slots=True)
@@ -263,6 +269,9 @@ class PartitionIR2:
     # conditional route helpers attached to member nodes and therefore executed
     # inside the same worker
     attached_routes: list[str] = field(default_factory=list)
+    # if set, this partition belongs to a looping scc and must participate in
+    # iterative planning until the loop exits or quiesces
+    loop_component: str | None = None
     retry_policy: RetryPolicyIR | None = None
     cache_policy: CachePolicyIR | None = None
     resources: ResourceIR | None = None
@@ -288,6 +297,9 @@ class GraphIR2:
     partitions: dict[str, PartitionIR2] = field(default_factory=dict)
     # lookup table used later by the planner: node id -> partition id.
     partitioned_task_model: dict[str, dict[str, str]] = field(default_factory=dict)
+    # reverse loop lookup used by lowering when a looping scc spans multiple
+    # partitions
+    loop_clusters: dict[str, list[str]] = field(default_factory=dict)
     barriers: str = "pregel_superstep"
     edges: dict[str, list[str]] = field(default_factory=dict)
     fusion_decisions: list[FusionDecisionIR] = field(default_factory=list)
@@ -315,6 +327,8 @@ class ServerlessPlanIR:
     task_contract_fields: list[str] = field(default_factory=list)
     checkpoint_schema: dict[str, Any] = field(default_factory=dict)
     pending_writes_schema: dict[str, Any] = field(default_factory=dict)
+    # loop-aware orchestration hints for generated step functions / coordinators
+    loop_plans: list[dict[str, Any]] = field(default_factory=list)
     # human-readable sketch of the coordinator loop after lowering
     planner_outline: list[str] = field(default_factory=list)
 

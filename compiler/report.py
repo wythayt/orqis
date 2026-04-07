@@ -86,8 +86,12 @@ def render_report(bundle: CompilationBundle) -> str:
     lines.append("### SCCs / loops")
     for loop in bundle.analysis.loops:
         lines.append(
-            f"- `{loop.component_id}`: members={loop.members}, loop={loop.requires_loop_capable_orchestrator}"
+            f"- `{loop.component_id}`: members={loop.members}, loop={loop.requires_loop_capable_orchestrator}, entry={loop.entry_nodes}, exit={loop.exit_nodes}, termination={loop.termination_style}"
         )
+        if loop.cycle_edges:
+            lines.append(f"  - cycle_edges: {loop.cycle_edges}")
+        for note in loop.notes:
+            lines.append(f"  - note: {note}")
     lines.append("")
     lines.append("### Side effects and cache")
     for node_id, side_effect in bundle.analysis.side_effects.items():
@@ -116,8 +120,13 @@ def render_report(bundle: CompilationBundle) -> str:
     lines.append("")
     for partition_id, partition in bundle.lgir2.partitions.items():
         lines.append(
-            f"- `{partition_id}`: members={partition.members}, routes={partition.attached_routes}, checkpoint_reads={partition.checkpoint_read_set}, task_inputs={partition.task_input_keys}, writes={partition.write_set}, emits_send={partition.emits_send}, cost={partition.estimated_cost}"
+            f"- `{partition_id}`: members={partition.members}, routes={partition.attached_routes}, loop_component={partition.loop_component}, checkpoint_reads={partition.checkpoint_read_set}, task_inputs={partition.task_input_keys}, writes={partition.write_set}, emits_send={partition.emits_send}, cost={partition.estimated_cost}"
         )
+    if bundle.lgir2.loop_clusters:
+        lines.append("")
+        lines.append("### Loop clusters")
+        for component_id, partitions in bundle.lgir2.loop_clusters.items():
+            lines.append(f"- `{component_id}` -> {partitions}")
     lines.append("")
     lines.append("## SRV-Plan")
     lines.append("")
@@ -134,6 +143,13 @@ def render_report(bundle: CompilationBundle) -> str:
     lines.append("### Planner outline")
     for step in bundle.srv_plan.planner_outline:
         lines.append(f"- {step}")
+    if bundle.srv_plan.loop_plans:
+        lines.append("")
+        lines.append("### Loop plans")
+        for loop_plan in bundle.srv_plan.loop_plans:
+            lines.append(
+                f"- `{loop_plan['component_id']}`: partitions={loop_plan['partitions']}, termination={loop_plan['termination_style']}, scheduler_hint={loop_plan['scheduler_hint']}"
+            )
     if bundle.runtime_trace:
         lines.append("")
         lines.append("## Baseline runtime trace")

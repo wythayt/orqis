@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections import defaultdict
+
 from orqis.compiler.ir import AnalysisBundle, GraphIR0, GraphIR2, ResourceIR, ServerlessPlanIR
 from orqis.compiler.utils import topological_layers
 
@@ -10,22 +12,34 @@ def build_srv_plan(lgir0: GraphIR0, analysis: AnalysisBundle, lgir2: GraphIR2) -
         resources = partition.resources or ResourceIR()
         memory = resources.memory_mb or (1536 if partition.side_effects and partition.side_effects.purity == "Effectful" else 512)
         timeout = resources.timeout_sec or (90 if partition.emits_send or (partition.side_effects and partition.side_effects.purity == "Effectful") else 30)
+        notes = [
+            "reads only checkpoint_read_set plus task_input_keys",
+            "applies local writes between fused members before moving to the next member",
+        ]
+        if partition.loop_component is not None:
+            notes.append(f"participates in loop component {partition.loop_component} and must checkpoint between iterations")
         workers[partition.partition_id] = {
             "lambda_name": f"{lgir0.graph_id}-{partition.partition_id}",
             "memory_mb": memory,
             "timeout_sec": timeout,
             "concurrency_limit": resources.concurrency_limit,
-            "notes": [
-                "reads only checkpoint_read_set plus task_input_keys",
-                "applies local writes between fused members before moving to the next member",
-            ],
+            "notes": notes,
         }
     has_fanout = any(region.map_nodes for region in analysis.fanout_regions)
     has_loops = any(loop.requires_loop_capable_orchestrator for loop in analysis.loops)
     mode = "StepFunctions" if has_fanout or has_loops else "EventDriven"
     partition_edges = {src: set(dsts) for src, dsts in lgir2.edges.items()}
     layers = topological_layers(sorted(lgir2.partitions), partition_edges)
+    loop_plans = build_loop_plans(analysis, lgir2)
     planner_outline = []
+    if loop_plans:
+        for loop_plan in loop_plans:
+            planner_outline.append(
+                f"Loop {loop_plan['component_id']}: iterate partitions {', '.join(loop_plan['partitions'])} using {loop_plan['termination_style']}"
+            )
+            planner_outline.append(
+                f"Loop {loop_plan['component_id']}: checkpoint after each iteration and re-plan until the loop exits"
+            )
     for index, layer in enumerate(layers):
         planner_outline.append(f"Plan{index}: compute tasks for partitions {', '.join(layer)}")
         if any(lgir2.partitions[partition_id].emits_send for partition_id in layer):
@@ -69,6 +83,7 @@ def build_srv_plan(lgir0: GraphIR0, analysis: AnalysisBundle, lgir2: GraphIR2) -
                 for partition_id, partition in lgir2.partitions.items()
                 if any(node in region.map_nodes for region in analysis.fanout_regions for node in partition.members)
             ],
+            "loop_components": [loop_plan["component_id"] for loop_plan in loop_plans],
         },
         security={
             "roles": {
@@ -112,5 +127,33 @@ def build_srv_plan(lgir0: GraphIR0, analysis: AnalysisBundle, lgir2: GraphIR2) -
                 "node_id",
             ],
         },
+        loop_plans=loop_plans,
         planner_outline=planner_outline,
     )
+
+
+def build_loop_plans(analysis: AnalysisBundle, lgir2: GraphIR2) -> list[dict[str, object]]:
+    loop_plans: list[dict[str, object]] = []
+    loop_partition_members = defaultdict(list)
+    for partition_id, partition in lgir2.partitions.items():
+        if partition.loop_component is not None:
+            loop_partition_members[partition.loop_component].append(partition_id)
+    for loop in analysis.loops:
+        if not loop.requires_loop_capable_orchestrator:
+            continue
+        partitions = sorted(set(loop_partition_members.get(loop.component_id, [])) or set(lgir2.loop_clusters.get(loop.component_id, [])))
+        loop_plans.append(
+            {
+                "component_id": loop.component_id,
+                "partitions": partitions,
+                "member_nodes": loop.members,
+                "entry_nodes": loop.entry_nodes,
+                "exit_nodes": loop.exit_nodes,
+                "cycle_edges": loop.cycle_edges,
+                "termination_style": loop.termination_style,
+                "scheduler_hint": loop.scheduler_hint,
+                "requires_quiescence_check": loop.termination_style == "quiescence",
+                "notes": loop.notes,
+            }
+        )
+    return loop_plans

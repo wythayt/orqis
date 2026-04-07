@@ -24,6 +24,8 @@ def build_lgir2(lgir0: GraphIR0, analysis: AnalysisBundle) -> GraphIR2:
             reverse[dst].add(src)
     scc_membership = {}
     for loop in analysis.loops:
+        if not loop.requires_loop_capable_orchestrator:
+            continue
         for member in loop.members:
             scc_membership[member] = loop.component_id
 
@@ -62,10 +64,17 @@ def build_lgir2(lgir0: GraphIR0, analysis: AnalysisBundle) -> GraphIR2:
 
     partition_objects: dict[str, PartitionIR2] = {}
     for members in partitions.values():
-        partition = build_partition_object(lgir0, analysis, members, adjacency)
+        loop_component = next((scc_membership.get(member) for member in members if member in scc_membership), None)
+        partition = build_partition_object(lgir0, analysis, members, adjacency, loop_component=loop_component)
         partition_objects[partition.partition_id] = partition
         for member in members:
             node_to_partition[member] = partition.partition_id
+
+    loop_clusters: dict[str, set[str]] = defaultdict(set)
+    for node_id, partition_id in node_to_partition.items():
+        loop_component = scc_membership.get(node_id)
+        if loop_component:
+            loop_clusters[loop_component].add(partition_id)
 
     partition_edges = defaultdict(set)
     for src, dests in adjacency.items():
@@ -84,6 +93,7 @@ def build_lgir2(lgir0: GraphIR0, analysis: AnalysisBundle) -> GraphIR2:
         graph_id=lgir0.graph_id,
         partitions=partition_objects,
         partitioned_task_model=partitioned_task_model,
+        loop_clusters={component_id: sorted(partitions) for component_id, partitions in loop_clusters.items()},
         edges={key: sorted(value) for key, value in partition_edges.items()},
         fusion_decisions=decisions,
     )
@@ -157,6 +167,8 @@ def build_partition_object(
     analysis: AnalysisBundle,
     members: list[str],
     adjacency: dict[str, set[str]],
+    *,
+    loop_component: str | None = None,
 ) -> PartitionIR2:
     attached_routes = [
         route_id
@@ -176,7 +188,7 @@ def build_partition_object(
             for key in analysis.route_read_write[route_id].read_set
         }
     )
-    requires_barrier = emits_send or any(
+    requires_barrier = loop_component is not None or emits_send or any(
         successor not in members for member in members for successor in adjacency.get(member, set())
     )
     side_effects = combine_side_effects([analysis.side_effects[member] for member in members])
@@ -191,6 +203,7 @@ def build_partition_object(
         partition_id=partition_id,
         members=list(members),
         attached_routes=attached_routes,
+        loop_component=loop_component,
         retry_policy=retry_policy,
         cache_policy=cache_policy,
         resources=resources,

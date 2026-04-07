@@ -11,6 +11,7 @@ from orqis.compiler.ir import (
     CacheAnalysisIR,
     FanoutRegionIR,
     GraphIR0,
+    LoopIR,
     ReadWriteIR,
     ReducerAnalysisIR,
     SideEffectIR,
@@ -228,15 +229,93 @@ def build_analysis(
     adjacency = build_node_adjacency(lgir0)
     sccs = strongly_connected_components(sorted(lgir0.nodes), adjacency)
     for index, members in enumerate(sccs):
+        component = set(members)
         requires_loop = len(members) > 1 or any(node in adjacency[node] for node in members)
-        from orqis.compiler.ir import LoopIR
-
+        entry_nodes = sorted(
+            {
+                edge.target
+                for edge in lgir0.edges
+                if edge.kind == "Static"
+                and edge.target in component
+                and edge.source not in component
+            }
+            | {
+                target
+                for edge in lgir0.edges
+                if edge.kind == "Conditional"
+                and edge.source not in component
+                for target in edge.path_map.values()
+                if target in component
+            }
+        )
+        exit_nodes = sorted(
+            {
+                edge.source
+                for edge in lgir0.edges
+                if edge.kind == "Static"
+                and edge.source in component
+                and edge.target not in component
+            }
+            | {
+                edge.source
+                for edge in lgir0.edges
+                if edge.kind == "Conditional"
+                and edge.source in component
+                and any(target not in component for target in edge.path_map.values())
+            }
+        )
+        cycle_edges = sorted(
+            {
+                f"{edge.source}->{edge.target}"
+                for edge in lgir0.edges
+                if edge.kind == "Static"
+                and edge.source in component
+                and edge.target in component
+            }
+            | {
+                f"{edge.source}->{target}"
+                for edge in lgir0.edges
+                if edge.kind == "Conditional"
+                and edge.source in component
+                for target in edge.path_map.values()
+                if target in component
+            }
+        )
+        termination_style = "none"
+        scheduler_hint = "single_pass"
+        notes: list[str] = []
+        if requires_loop:
+            conditional_exits = [
+                edge
+                for edge in lgir0.edges
+                if edge.kind == "Conditional"
+                and edge.source in component
+                and any(target not in component for target in edge.path_map.values())
+            ]
+            if conditional_exits:
+                termination_style = "conditional_route"
+                scheduler_hint = "iterate_until_router_exit"
+                notes.append("loop exits through a conditional route to a node outside the scc")
+            elif exit_nodes:
+                termination_style = "static_exit"
+                scheduler_hint = "iterate_until_external_edge_is_enabled"
+                notes.append("loop has an external exit edge but no explicit conditional route was identified")
+            else:
+                termination_style = "quiescence"
+                scheduler_hint = "iterate_until_no_updates"
+                notes.append("loop has no explicit exit edge, so runtime must rely on quiescence or an interrupt")
         analysis.loops.append(
             LoopIR(
                 component_id=f"scc_{index}",
                 members=sorted(members),
+                entry_nodes=entry_nodes,
+                exit_nodes=exit_nodes,
+                cycle_edges=cycle_edges,
                 kind="loop" if requires_loop else "acyclic",
+                termination_style=termination_style,
+                scheduler_hint=scheduler_hint,
                 requires_loop_capable_orchestrator=requires_loop,
+                notes=notes,
             )
         )
 
