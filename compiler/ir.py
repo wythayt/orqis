@@ -66,6 +66,43 @@ class ResourceIR:
     concurrency_limit: int | None = None
     batchable: bool | None = None
 
+
+@dataclass(slots=True)
+class ResourceCandidateIR:
+    memory_mb: int
+    concurrency_limit: int | None
+    cpu_share: float
+    estimated_peak_memory_mb: float
+    estimated_p50_latency_ms: float
+    estimated_p95_latency_ms: float
+    estimated_p99_latency_ms: float
+    estimated_cost_units: float
+    estimated_error_rate: float
+    estimated_cold_start_ms: float
+    cold_start_probability: float
+    objective_score: float | None = None
+    feasible: bool = True
+    notes: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class ResourceOptimizationIR:
+    partition_id: str
+    strategy: str
+    initial_memory_mb: int | None
+    initial_timeout_sec: int | None
+    initial_concurrency_limit: int | None
+    selected_memory_mb: int
+    selected_timeout_sec: int
+    selected_concurrency_limit: int | None
+    total_compute_mb: int
+    workload: dict[str, Any] = field(default_factory=dict)
+    constraints: dict[str, Any] = field(default_factory=dict)
+    objective_weights: dict[str, float] = field(default_factory=dict)
+    candidates: list[ResourceCandidateIR] = field(default_factory=list)
+    reason: str = ""
+    notes: list[str] = field(default_factory=list)
+
 # graph-level view of one node before lowering to explicit pregel mechanics
 # close to what stategraph.add_node() receives
 @dataclass(slots=True)

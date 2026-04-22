@@ -6,6 +6,12 @@ from orqis.compiler.ir import CompilationBundle
 from orqis.compiler.utils import ensure_directory, to_jsonable, write_json
 
 
+def _field(value: object, key: str, default: object = None) -> object:
+    if isinstance(value, dict):
+        return value.get(key, default)
+    return getattr(value, key, default)
+
+
 def render_report(bundle: CompilationBundle) -> str:
     lines: list[str] = []
     lines.append(f"# Compilation report: `{bundle.graph_id}`")
@@ -133,12 +139,43 @@ def render_report(bundle: CompilationBundle) -> str:
     lines.append(f"- mode: `{bundle.srv_plan.orchestration.get('mode')}`")
     lines.append(f"- checkpoint store: `{bundle.srv_plan.persistence.get('checkpoint_store')}`")
     lines.append(f"- worker count: `{len(bundle.srv_plan.compute.get('workers', {}))}`")
+    resource_summary = bundle.srv_plan.compute.get("resource_summary", {})
+    if resource_summary:
+        lines.append(f"- resource optimizer: `{resource_summary.get('strategy')}`")
+        lines.append(f"- total compute envelope: `{resource_summary.get('total_compute_mb')}MB`")
     lines.append("")
     lines.append("### Workers")
     for partition_id, worker in bundle.srv_plan.compute.get("workers", {}).items():
         lines.append(
-            f"- `{partition_id}` -> `{worker['lambda_name']}`: memory={worker['memory_mb']}MB, timeout={worker['timeout_sec']}s, concurrency={worker['concurrency_limit']}"
+            f"- `{partition_id}` -> `{worker['lambda_name']}`: memory={worker['memory_mb']}MB, timeout={worker['timeout_sec']}s, concurrency={worker['concurrency_limit']}, total_compute={worker.get('total_compute_mb')}MB"
         )
+    lines.append("")
+    lines.append("### Memory optimization")
+    for partition_id, worker in bundle.srv_plan.compute.get("workers", {}).items():
+        optimization = worker.get("resource_optimization", {})
+        if not optimization:
+            continue
+        workload = _field(optimization, "workload", {})
+        selected = _field(optimization, "selected_memory_mb")
+        initial = _field(optimization, "initial_memory_mb")
+        candidate_text = "; ".join(
+            (
+                f"{_field(candidate, 'memory_mb')}MB:"
+                f"J={_field(candidate, 'objective_score')},"
+                f"p95={_field(candidate, 'estimated_p95_latency_ms')}ms,"
+                f"cost={_field(candidate, 'estimated_cost_units')},"
+                f"ok={_field(candidate, 'feasible')}"
+            )
+            for candidate in _field(optimization, "candidates", [])
+        )
+        lines.append(
+            f"- `{partition_id}`: initial={initial}MB, selected={selected}MB, timeout={_field(optimization, 'selected_timeout_sec')}s, concurrency={_field(optimization, 'selected_concurrency_limit')}, total_compute={_field(optimization, 'total_compute_mb')}MB"
+        )
+        lines.append(
+            f"  - workload: invocations={workload.get('observed_invocations')}, peak_concurrency={workload.get('observed_peak_concurrency')}, fanout_width={workload.get('fanout_width')}, work_units={workload.get('work_units')}"
+        )
+        lines.append(f"  - reason: {_field(optimization, 'reason')}")
+        lines.append(f"  - candidates: {candidate_text}")
     lines.append("")
     lines.append("### Planner outline")
     for step in bundle.srv_plan.planner_outline:

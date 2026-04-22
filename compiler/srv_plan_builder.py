@@ -2,27 +2,38 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from orqis.compiler.ir import AnalysisBundle, GraphIR0, GraphIR2, ResourceIR, ServerlessPlanIR
+from orqis.compiler.ir import AnalysisBundle, GraphIR0, GraphIR2, ServerlessPlanIR, StepTraceIR
+from orqis.compiler.resource_optimizer import optimize_partition_resources
 from orqis.compiler.utils import topological_layers
 
 
-def build_srv_plan(lgir0: GraphIR0, analysis: AnalysisBundle, lgir2: GraphIR2) -> ServerlessPlanIR:
+def build_srv_plan(
+    lgir0: GraphIR0,
+    analysis: AnalysisBundle,
+    lgir2: GraphIR2,
+    runtime_trace: list[StepTraceIR] | None = None,
+) -> ServerlessPlanIR:
+    resource_optimizations = optimize_partition_resources(lgir0, analysis, lgir2, runtime_trace)
     workers = {}
     for partition in lgir2.partitions.values():
-        resources = partition.resources or ResourceIR()
-        memory = resources.memory_mb or (1536 if partition.side_effects and partition.side_effects.purity == "Effectful" else 512)
-        timeout = resources.timeout_sec or (90 if partition.emits_send or (partition.side_effects and partition.side_effects.purity == "Effectful") else 30)
+        resource_optimization = resource_optimizations[partition.partition_id]
+        memory = resource_optimization.selected_memory_mb
+        timeout = resource_optimization.selected_timeout_sec
         notes = [
             "reads only checkpoint_read_set plus task_input_keys",
             "applies local writes between fused members before moving to the next member",
+            resource_optimization.reason,
         ]
         if partition.loop_component is not None:
             notes.append(f"participates in loop component {partition.loop_component} and must checkpoint between iterations")
+        notes.extend(resource_optimization.notes)
         workers[partition.partition_id] = {
             "lambda_name": f"{lgir0.graph_id}-{partition.partition_id}",
             "memory_mb": memory,
             "timeout_sec": timeout,
-            "concurrency_limit": resources.concurrency_limit,
+            "concurrency_limit": resource_optimization.selected_concurrency_limit,
+            "total_compute_mb": resource_optimization.total_compute_mb,
+            "resource_optimization": resource_optimization,
             "notes": notes,
         }
     has_fanout = any(region.map_nodes for region in analysis.fanout_regions)
@@ -75,6 +86,13 @@ def build_srv_plan(lgir0: GraphIR0, analysis: AnalysisBundle, lgir2: GraphIR2) -
         compute={
             "workers": workers,
             "coordinator": {"lambda_name": f"{lgir0.graph_id}-coordinator"},
+            "resource_summary": {
+                "strategy": "evaluate Lambda memory as a per-partition hyperparameter",
+                "candidate_memory_mb": [128, 256, 512, 1024, 1536, 2048, 3008],
+                "total_compute_mb": sum(
+                    optimization.total_compute_mb for optimization in resource_optimizations.values()
+                ),
+            },
         },
         orchestration={
             "mode": mode,

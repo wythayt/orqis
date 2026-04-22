@@ -111,6 +111,10 @@ def evaluate_merge(
     scc_membership: dict[str, str],
 ) -> FusionDecisionIR:
     side_effects = analysis.side_effects
+    same_loop_component = (
+        scc_membership.get(source) is not None
+        and scc_membership.get(source) == scc_membership.get(target)
+    )
     rules = {
         "F1_linear": len(adjacency[source]) == 1 and reverse[target] == {source},
         "F2_barrier_simulatable": True,
@@ -121,10 +125,9 @@ def evaluate_merge(
             for edge in lgir0.edges
         ),
         "defer_boundary": not (lgir0.nodes[source].defer or lgir0.nodes[target].defer),
-        "loop_boundary": scc_membership.get(source) != scc_membership.get(target)
-        or source == target == "",
+        "loop_boundary": not same_loop_component,
     }
-    if scc_membership.get(source) == scc_membership.get(target):
+    if same_loop_component:
         loop_component = next(
             (loop for loop in analysis.loops if loop.component_id == scc_membership.get(source)),
             None,

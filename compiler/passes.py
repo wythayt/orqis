@@ -85,18 +85,6 @@ def compile_graph(
         )
     )
 
-    srv_plan = build_srv_plan(lgir0, analysis, lgir2)
-    pass_trace.append(
-        PassTraceIR(
-            pass_name="srv-plan",
-            description="Lower partition IR to an AWS-oriented serverless deployment plan.",
-            highlights=[
-                srv_plan.orchestration.get("mode", "unknown"),
-                f"{len(srv_plan.compute.get('workers', {}))} workers",
-            ],
-        )
-    )
-
     runtime_trace = build_runtime_trace(compiled_graph, lgir0, sample_input) if sample_input is not None else []
     if runtime_trace:
         pass_trace.append(
@@ -110,10 +98,24 @@ def compile_graph(
             )
         )
 
+    srv_plan = build_srv_plan(lgir0, analysis, lgir2, runtime_trace=runtime_trace)
+    pass_trace.append(
+        PassTraceIR(
+            pass_name="srv-plan",
+            description="Lower partition IR to an AWS-oriented serverless deployment plan with memory optimization.",
+            highlights=[
+                srv_plan.orchestration.get("mode", "unknown"),
+                f"{len(srv_plan.compute.get('workers', {}))} workers",
+                f"resource optimizer total_compute_mb={srv_plan.compute.get('resource_summary', {}).get('total_compute_mb')}",
+            ],
+        )
+    )
+
     next_steps = [
         "Replace AST-only write inference with explicit per-node read/write metadata or decorators.",
         "Integrate a real checkpointer so the compiler can emit concrete checkpoint and pending-write schemas from live runs.",
         "Use LangGraph internal task metadata to capture exact task_path ordering for non-commutative reducers.",
+        "Replace static resource estimates with production latency, cost, and peak-memory measurements.",
         "Extend lowering for subgraphs, Command routes, loops, and deployable AWS IaC output.",
     ]
 
