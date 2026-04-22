@@ -1,0 +1,1015 @@
+        {  "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.946,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.14,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 3.002,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.05,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.819,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 2.21,
+          "billed_duration_ms": 3,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.25e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 1.023,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.91,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.616,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.31,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.754,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_aggregate",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 113.11,
+          "billed_duration_ms": 114,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 256,
+          "estimated_cost_usd": 6.75e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_aggregate",
+            "handler_elapsed_ms": 94.99,
+            "memory_touched_bytes": 0
+          }
+        }
+      ],
+      "estimated_cost_usd": 6.0252e-06,
+      "billed_duration_ms": 252,
+      "handler_duration_ms": 182.595
+    },
+    {
+      "variant": "memory_opt",
+      "run_id": "run-8",
+      "collect": true,
+      "chunk_count": 20,
+      "final_summary_length": 435,
+      "metrics": [
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_ingest_split_fanout",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 43.7,
+          "billed_duration_ms": 44,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 5.667e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_ingest_split_fanout",
+            "handler_elapsed_ms": 42.192,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.97,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.718,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.7,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.609,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.33,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.957,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 7.65,
+          "billed_duration_ms": 8,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.667e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.908,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.01,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.876,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.04,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.745,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.32,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 3.008,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.1,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.793,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.37,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.863,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.06,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.841,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.01,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.864,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.99,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.806,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.92,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.66,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.94,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.783,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.93,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.856,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.05,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.942,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 2.21,
+          "billed_duration_ms": 3,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.25e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 1.011,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.98,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.894,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.51,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 3.064,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.87,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.666,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_aggregate",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 120.29,
+          "billed_duration_ms": 121,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 256,
+          "estimated_cost_usd": 7.042e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_aggregate",
+            "handler_elapsed_ms": 102.542,
+            "memory_touched_bytes": 0
+          }
+        }
+      ],
+      "estimated_cost_usd": 6.046e-06,
+      "billed_duration_ms": 258,
+      "handler_duration_ms": 199.598
+    },
+    {
+      "variant": "memory_opt",
+      "run_id": "run-9",
+      "collect": true,
+      "chunk_count": 20,
+      "final_summary_length": 435,
+      "metrics": [
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_ingest_split_fanout",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 49.12,
+          "billed_duration_ms": 50,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 6.167e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_ingest_split_fanout",
+            "handler_elapsed_ms": 34.105,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.85,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.657,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.8,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.691,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.28,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.977,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.01,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.756,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.21,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.921,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.07,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.874,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.02,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.872,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 3.96,
+          "billed_duration_ms": 4,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.333e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.728,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.3,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 3.093,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.15,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.901,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.23,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 3.022,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.11,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.906,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.1,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.808,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.42,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.907,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.2,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.911,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.24,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.964,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.11,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.794,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.07,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.777,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 4.15,
+          "billed_duration_ms": 5,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.417e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 2.903,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_summarise_chunk",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 1.92,
+          "billed_duration_ms": 2,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 512,
+          "estimated_cost_usd": 2.167e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_summarise_chunk",
+            "handler_elapsed_ms": 0.918,
+            "memory_touched_bytes": 0
+          }
+        },
+        {
+          "variant": "memory_opt",
+          "partition_id": "p_aggregate",
+          "status_code": 200,
+          "function_error": null,
+          "duration_ms": 117.05,
+          "billed_duration_ms": 118,
+          "init_duration_ms": null,
+          "max_memory_used_mb": 37,
+          "configured_memory_mb": 256,
+          "estimated_cost_usd": 6.917e-07,
+          "payload_meta": {
+            "variant": "memory_opt",
+            "partition_id": "p_aggregate",
+            "handler_elapsed_ms": 98.951,
+            "memory_touched_bytes": 0
+          }
+        }
+      ],
+      "estimated_cost_usd": 6.0922e-06,
+      "billed_duration_ms": 262,
+      "handler_duration_ms": 188.436
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "runs": 10,
+      "avg_estimated_cost_usd": 7.745e-06,
+      "avg_billed_duration_ms": 206.6,
+      "avg_handler_duration_ms": 141.461,
+      "partitions": {
+        "p_aggregate": {
+          "configured_memory_mb": 512,
+          "invocations": 10,
+          "avg_duration_ms": 55.631,
+          "p95_duration_ms": 64.64,
+          "avg_billed_duration_ms": 56.1,
+          "max_memory_used_mb": 37,
+          "cold_starts": 0,
+          "avg_init_duration_ms": null
+        },
+        "p_ingest_split_fanout": {
+          "configured_memory_mb": 512,
+          "invocations": 10,
+          "avg_duration_ms": 52.536,
+          "p95_duration_ms": 63.83,
+          "avg_billed_duration_ms": 53.1,
+          "max_memory_used_mb": 37,
+          "cold_starts": 0,
+          "avg_init_duration_ms": null
+        },
+        "p_summarise_chunk": {
+          "configured_memory_mb": 1536,
+          "invocations": 200,
+          "avg_duration_ms": 4.192,
+          "p95_duration_ms": 4.97,
+          "avg_billed_duration_ms": 4.87,
+          "max_memory_used_mb": 37,
+          "cold_starts": 0,
+          "avg_init_duration_ms": null
+        }
+      }
+    },
+    "memory_opt": {
+      "runs": 10,
+      "avg_estimated_cost_usd": 6.1082e-06,
+      "avg_billed_duration_ms": 263.7,
+      "avg_handler_duration_ms": 189.885,
+      "partitions": {
+        "p_aggregate": {
+          "configured_memory_mb": 256,
+          "invocations": 10,
+          "avg_duration_ms": 116.926,
+          "p95_duration_ms": 124.58,
+          "avg_billed_duration_ms": 117.5,
+          "max_memory_used_mb": 37,
+          "cold_starts": 0,
+          "avg_init_duration_ms": null
+        },
+        "p_ingest_split_fanout": {
+          "configured_memory_mb": 512,
+          "invocations": 10,
+          "avg_duration_ms": 50.554,
+          "p95_duration_ms": 64.73,
+          "avg_billed_duration_ms": 51.1,
+          "max_memory_used_mb": 37,
+          "cold_starts": 0,
+          "avg_init_duration_ms": null
+        },
+        "p_summarise_chunk": {
+          "configured_memory_mb": 512,
+          "invocations": 200,
+          "avg_duration_ms": 4.092,
+          "p95_duration_ms": 4.39,
+          "avg_billed_duration_ms": 4.755,
+          "max_memory_used_mb": 37,
+          "cold_starts": 0,
+          "avg_init_duration_ms": null
+        }
+      }
+    }
+  }                                                                                                                                
