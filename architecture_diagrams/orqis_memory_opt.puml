@@ -1,0 +1,199 @@
+@startuml
+title Resource Optimizer Data Flow Per Partition
+
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor White
+  BorderColor Black
+}
+
+start
+
+partition "Inputs" {
+  :PartitionIR2 partition;
+  note right
+  Fields used:
+  - members
+  - attached_routes
+  - checkpoint_read_set
+  - task_input_keys
+  - write_set
+  - emits_send
+  - loop_component
+  - side_effects
+  - resources
+  end note
+
+  :Observed runtime data\nfrom StepTraceIR[];
+  note right
+  Per task:
+  - node_id
+  - task_kind
+  - input_slice
+  - result
+
+  Per step:
+  - number of tasks
+  - peak concurrency
+  end note
+}
+
+partition "Baseline Extraction" {
+  :resource_hint = partition.resources or ResourceIR();
+  :initial_memory = resource_hint.memory_mb\nor default_initial_memory(partition);
+  :initial_timeout = resource_hint.timeout_sec\nor default_initial_timeout(partition);
+  :initial_concurrency = resource_hint.concurrency_limit;
+}
+
+partition "Observed Workload Builder" {
+  :Map node_id -> partition_id;
+  :Count observed_invocations;
+  :Count tasks per superstep;
+  :observed_peak_concurrency = max(tasks per step);
+  :Estimate input/result payload units;
+  :Detect fanout map partitions\nfrom AnalysisBundle.fanout_regions;
+  :fanout_width = observed Send map task count;
+}
+
+partition "Workload Feature Model" {
+  :effect_domains = partition.side_effects.effect_domains;
+  :is_llm = "llm" in effect_domains;
+  :is_effectful = side_effects.purity == "Effectful";
+  :static_units =
+  checkpoint_read_keys * 8
+  + task_input_keys * 6
+  + write_keys * 8
+  + route_count * 10;
+  :work_units =
+  max_input_units
+  + max_result_units
+  + static_units;
+
+  if (partition emits Send?) then (yes)
+    :work_units += fanout_width * 8;
+  endif
+
+  if (partition is loop member?) then (yes)
+    :work_units *= 1.25;
+  endif
+
+  if (is_llm?) then (yes)
+    :work_units *= 1.5;
+  endif
+}
+
+partition "Concurrency Selection" {
+  if (is_dynamic_fanout_map?) then (yes)
+    :demand = max(observed_peak_concurrency, fanout_width);
+    if (initial_concurrency exists?) then (yes)
+      :selected_concurrency = min(initial_concurrency, demand);
+    else (no)
+      :selected_concurrency = min(64, demand);
+    endif
+  else (no)
+    :selected_concurrency = initial_concurrency;
+  endif
+}
+
+partition "Constraints" {
+  :peak_memory_mb = estimate_peak_memory_mb(partition, workload);
+  note right
+  Includes:
+  - base runtime memory
+  - member/route/read/write overhead
+  - payload work units
+  - fanout overhead
+  - +170MB for LLM-like workers
+  - loop overhead
+  end note
+
+  :constraints =
+  timeout_sec: initial_timeout
+  slo_p95_latency_ms: latency_slo_ms(...)
+  max_error_rate: 0.05
+  min_memory_headroom: 1.15;
+}
+
+partition "Candidate Evaluation Loop" {
+  :candidate_memory_values =
+  {128,256,512,1024,1536,2048,3008}
+  plus initial_memory;
+
+  repeat
+    :memory_mb = next candidate;
+    :cpu_share = memory_mb / 512;
+
+    :cpu_ms = estimate_cpu_ms(partition, workload);
+    :io_ms = estimate_io_ms(partition, workload);
+    :warm_latency = io_ms + cpu_ms / cpu_share;
+
+    :cold_start_ms =
+    estimate_cold_start_ms(partition, memory_mb, cpu_share, workload);
+
+    :cold_probability =
+    estimate_cold_start_probability(workload, selected_concurrency);
+
+    :p50 = warm_latency;
+    :p95 = warm_latency + cold_start_ms * tail_factor;
+    :p99 = warm_latency + cold_start_ms;
+
+    :cost_units =
+    observed_invocations
+    * (memory_mb / 1024)
+    * (expected_latency / 1000);
+
+    :error_rate =
+    memory pressure risk
+    + timeout tail risk
+    + concurrency risk;
+
+    if (memory_mb >= peak_memory_mb * 1.15\nand p99 < timeout * 1000 * 0.9\nand error_rate <= 0.05?) then (feasible)
+      :feasible = true;
+    else (rejected)
+      :feasible = false;
+      :Add notes:\n- insufficient memory headroom\n- p99 too close to timeout\n- memory pressure raises retry/OOM risk;
+    endif
+
+    :objective_score =
+    0.48 * normalized_cost
+    + 0.42 * normalized_p95_latency
+    + 0.10 * normalized_error
+    + infeasible_penalty;
+
+    :Append ResourceCandidateIR;
+  repeat while (more candidates?)
+}
+
+partition "Selection" {
+  :feasible_candidates = candidates where feasible == true;
+  :selected = min(feasible_candidates,\nby objective_score then memory_mb);
+  :selected_timeout =
+  ceil(selected.p99_ms / 1000 + 1),\nwith minimums by partition type;
+  :total_compute_mb =
+  selected.memory_mb * (selected_concurrency or 1);
+}
+
+partition "Output" {
+  :ResourceOptimizationIR;
+  note right
+  Contains:
+  - initial memory/timeout/concurrency
+  - selected memory/timeout/concurrency
+  - total_compute_mb
+  - workload features
+  - constraints
+  - objective weights
+  - full candidate table
+  - human-readable reason
+  end note
+
+  :Worker plan fields:
+  memory_mb = selected_memory_mb
+  timeout_sec = selected_timeout_sec
+  concurrency_limit = selected_concurrency_limit
+  total_compute_mb = total_compute_mb;
+}
+
+stop
+
+@enduml

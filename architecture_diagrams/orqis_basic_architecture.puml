@@ -1,0 +1,120 @@
+@startuml
+title ORQIS Compiler Pipeline With Memory Optimization
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+actor "CLI / Python caller" as Caller
+
+package "Inputs" {
+  artifact "graph_or_factory\nStateGraph | CompiledStateGraph | factory" as GraphInput
+  artifact "sample_input\noptional representative workload" as SampleInput
+}
+
+package "Compiler Pipeline\norqis/compiler/passes.py" {
+  component "ensure_compiled_graph()" as Ensure
+  component "GraphIntrospector.extract()" as Introspector
+  component "build_analysis()" as Analysis
+  component "build_lgir2()" as Partition
+  component "build_runtime_trace()" as RuntimeTrace
+  component "build_srv_plan(..., runtime_trace)" as SrvPlan
+}
+
+package "Intermediate Representations" {
+  artifact "CompiledStateGraph" as Compiled
+  artifact "LGIR-0\nGraphIR0\nnodes, edges, resources, state schema" as LGIR0
+  artifact "LGIR-1\nPregelIR1\nchannels, triggers, writers" as LGIR1
+  artifact "AnalysisBundle\nread/write, fanout, loops,\nreducers, side effects" as AnalysisIR
+  artifact "LGIR-2\nGraphIR2\npartitions, fusion decisions,\npartition edges" as LGIR2
+  artifact "runtime_trace\nStepTraceIR[]\nobserved tasks + payloads" as TraceIR
+  artifact "SRV-Plan\nServerlessPlanIR\nworkers, queues, tables,\nresource optimization" as SRV
+}
+
+package "SRV Plan Builder\norqis/compiler/srv_plan_builder.py" {
+  component "optimize_partition_resources()" as OptimizeAll
+  component "build_loop_plans()" as LoopPlans
+  component "topological_layers()" as Layers
+}
+
+package "Resource Optimizer\norqis/compiler/resource_optimizer.py" {
+  component "build_observed_workloads()" as Observed
+  component "optimize_partition()" as OptimizeOne
+  artifact "ResourceOptimizationIR\nselected memory, timeout,\nconcurrency, candidates, reason" as ResourceOpt
+}
+
+package "Artifacts\norqis/compiler/report.py" {
+  component "write_artifacts()" as WriteArtifacts
+  component "render_report()" as RenderReport
+  database "lgir0.json\nlgir1.json\nanalysis.json\nlgir2.json\nsrv_plan.json\nruntime_trace.json\nreport.md" as Files
+}
+
+Caller --> GraphInput
+Caller --> SampleInput
+
+GraphInput --> Ensure
+Ensure --> Compiled
+
+Compiled --> Introspector
+Introspector --> LGIR0
+Introspector --> LGIR1
+
+Compiled --> Analysis
+LGIR0 --> Analysis
+LGIR1 --> Analysis
+Analysis --> AnalysisIR
+
+LGIR0 --> Partition
+AnalysisIR --> Partition
+Partition --> LGIR2
+
+Compiled --> RuntimeTrace
+LGIR0 --> RuntimeTrace
+SampleInput --> RuntimeTrace
+RuntimeTrace --> TraceIR
+
+LGIR0 --> SrvPlan
+AnalysisIR --> SrvPlan
+LGIR2 --> SrvPlan
+TraceIR --> SrvPlan
+
+SrvPlan --> OptimizeAll
+OptimizeAll --> Observed
+TraceIR --> Observed
+AnalysisIR --> Observed
+LGIR2 --> Observed
+
+Observed --> OptimizeOne
+LGIR2 --> OptimizeOne
+OptimizeOne --> ResourceOpt
+ResourceOpt --> SrvPlan
+
+SrvPlan --> LoopPlans
+AnalysisIR --> LoopPlans
+LGIR2 --> LoopPlans
+
+SrvPlan --> Layers
+LGIR2 --> Layers
+
+SrvPlan --> SRV
+
+LGIR0 --> WriteArtifacts
+LGIR1 --> WriteArtifacts
+AnalysisIR --> WriteArtifacts
+LGIR2 --> WriteArtifacts
+TraceIR --> WriteArtifacts
+SRV --> WriteArtifacts
+WriteArtifacts --> RenderReport
+WriteArtifacts --> Files
+RenderReport --> Files
+
+note right of SrvPlan
+SRV-Plan workers no longer copy metadata.resources blindly.
+Each worker receives:
+- memory_mb
+- timeout_sec
+- concurrency_limit
+- total_compute_mb
+- resource_optimization candidate table
+end note
+
+@enduml
