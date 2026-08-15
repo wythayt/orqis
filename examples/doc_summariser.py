@@ -6,12 +6,12 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import RetryPolicy, Send
 from typing_extensions import Annotated, TypedDict
 
-# typeddict state model for the example graph
+
 class DocWorkflowState(TypedDict):
     doc_id: str
     text: str
     chunks: list[str]
-    chunk_summaries: Annotated[list[str], operator.add] # specified reducer
+    chunk_summaries: Annotated[list[str], operator.add]
     final_summary: str
 
 
@@ -24,8 +24,12 @@ class SplitInput(TypedDict):
     text: str
 
 
-class ChunkTaskInput(TypedDict):
+class RemoteChunkTaskInput(TypedDict):
     doc_id: str
+    chunk: str
+
+
+class ToyChunkTaskInput(TypedDict):
     chunk: str
 
 
@@ -45,23 +49,32 @@ def split(state: SplitInput) -> dict[str, object]:
     return {"chunks": chunks}
 
 
-def fanout_to_chunks(state: DocWorkflowState) -> list[Send]:
+def fanout_to_remote_chunks(state: DocWorkflowState) -> list[Send]:
     return [
         Send("summarise_chunk", {"doc_id": state["doc_id"], "chunk": chunk})
         for chunk in state["chunks"]
     ]
 
 
-def summarise_chunk(state: ChunkTaskInput) -> dict[str, object]:
+def fanout_to_toy_chunks(state: DocWorkflowState) -> list[Send]:
+    return [Send("summarise_chunk", {"chunk": chunk}) for chunk in state["chunks"]]
+
+
+def summarise_chunk_remote(state: RemoteChunkTaskInput) -> dict[str, object]:
     chunk = state["chunk"]
     return {"chunk_summaries": [f"summary<{chunk[:10]}>"]}
+
+
+def summarise_chunk_toy(state: ToyChunkTaskInput) -> dict[str, object]:
+    chunk = state["chunk"]
+    return {"chunk_summaries": [chunk[:1] or "s"]}
 
 
 def aggregate(state: AggregateInput) -> dict[str, object]:
     return {"final_summary": " | ".join(state["chunk_summaries"])}
 
 
-def build_graph():
+def _build_graph(*, kind: str, graph_name: str):
     builder = StateGraph(DocWorkflowState)
     builder.add_node(
         "ingest",
@@ -81,24 +94,37 @@ def build_graph():
             "resources": {"memory_mb": 512, "timeout_sec": 15},
         },
     )
-    builder.add_node(
-        "summarise_chunk",
-        summarise_chunk,
-        input_schema=ChunkTaskInput,
-        retry_policy=RetryPolicy(max_attempts=4, initial_interval=0.5),
-        metadata={
-            "side_effects": {
-                "purity": "Effectful",
-                "effect_domains": ["llm"],
-                "idempotency_key_strategy": "task_id",
+    if kind == "remote":
+        builder.add_node(
+            "summarise_chunk",
+            summarise_chunk_remote,
+            input_schema=RemoteChunkTaskInput,
+            retry_policy=RetryPolicy(max_attempts=4, initial_interval=0.5),
+            metadata={
+                "side_effects": {
+                    "purity": "Effectful",
+                    "effect_domains": ["llm"],
+                    "idempotency_key_strategy": "task_id",
+                },
+                "resources": {
+                    "memory_mb": 1536,
+                    "timeout_sec": 90,
+                    "concurrency_limit": 8,
+                },
             },
-            "resources": {
-                "memory_mb": 1536,
-                "timeout_sec": 90,
-                "concurrency_limit": 8,
+        )
+        fanout = fanout_to_remote_chunks
+    else:
+        builder.add_node(
+            "summarise_chunk",
+            summarise_chunk_toy,
+            input_schema=ToyChunkTaskInput,
+            metadata={
+                "side_effects": {"purity": "Pure", "effect_domains": []},
+                "resources": {"memory_mb": 256, "timeout_sec": 15},
             },
-        },
-    )
+        )
+        fanout = fanout_to_toy_chunks
     builder.add_node(
         "aggregate",
         aggregate,
@@ -111,10 +137,22 @@ def build_graph():
     )
     builder.add_edge(START, "ingest")
     builder.add_edge("ingest", "split")
-    builder.add_conditional_edges("split", fanout_to_chunks, ["summarise_chunk"])
+    builder.add_conditional_edges("split", fanout, ["summarise_chunk"])
     builder.add_edge("summarise_chunk", "aggregate")
     builder.add_edge("aggregate", END)
-    return builder.compile(name="doc_summariser")
+    return builder.compile(name=graph_name)
+
+
+def build_graph():
+    return _build_graph(kind="remote", graph_name="doc_summariser")
+
+
+def build_remote_graph():
+    return _build_graph(kind="remote", graph_name="doc_summariser_remote")
+
+
+def build_toy_graph():
+    return _build_graph(kind="toy", graph_name="doc_summariser_toy")
 
 
 def get_sample_input() -> DocWorkflowState:
@@ -128,3 +166,11 @@ def get_sample_input() -> DocWorkflowState:
         "chunk_summaries": [],
         "final_summary": "",
     }
+
+
+def get_remote_sample_input() -> DocWorkflowState:
+    return get_sample_input()
+
+
+def get_toy_sample_input() -> DocWorkflowState:
+    return get_sample_input()
