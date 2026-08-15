@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, get_args, get_origin
 
 from orqis.compiler.ir import (
+    ApprovalPolicyIR,
     CachePolicyIR,
     ReducerRef,
     ResourceIR,
@@ -19,6 +20,10 @@ def normalize_sequence(value: Any) -> list[str]:
     if isinstance(value, str):
         return [value]
     return list(value)
+
+
+def normalize_string_sequence(value: Any) -> list[str]:
+    return [str(item) for item in normalize_sequence(value)]
 
 
 def channel_kind(channel: Any) -> str:
@@ -63,7 +68,10 @@ def extract_retry_policy(policy: Any) -> RetryPolicyIR | None:
     policies = list(policy) if isinstance(policy, (list, tuple)) else [policy]
     rules: list[RetryRuleIR] = []
     for item in policies:
-        policy_dict = item._asdict() if hasattr(item, "_asdict") else {}
+        if isinstance(item, dict):
+            policy_dict = dict(item)
+        else:
+            policy_dict = item._asdict() if hasattr(item, "_asdict") else {}
         match = callable_ref(policy_dict.get("retry_on")) or "Exception"
         rules.append(
             RetryRuleIR(
@@ -78,6 +86,11 @@ def extract_retry_policy(policy: Any) -> RetryPolicyIR | None:
 def extract_cache_policy(policy: Any) -> CachePolicyIR | None:
     if policy is None:
         return None
+    if isinstance(policy, dict):
+        return CachePolicyIR(
+            ttl_seconds=policy.get("ttl"),
+            key_func_ref=callable_ref(policy.get("key_func")) or policy.get("key_func_ref"),
+        )
     return CachePolicyIR(
         ttl_seconds=getattr(policy, "ttl", None),
         key_func_ref=callable_ref(getattr(policy, "key_func", None)),
@@ -105,6 +118,19 @@ def extract_resources(metadata: dict[str, Any]) -> ResourceIR | None:
         timeout_sec=value.get("timeout_sec"),
         concurrency_limit=value.get("concurrency_limit"),
         batchable=value.get("batchable"),
+    )
+
+
+def extract_approval_policy(metadata: dict[str, Any]) -> ApprovalPolicyIR | None:
+    value = metadata.get("approval_policy")
+    if not value:
+        return None
+    return ApprovalPolicyIR(
+        mode=value.get("mode", "auto"),
+        interrupt_before=bool(value.get("interrupt_before", False)),
+        interrupt_after=bool(value.get("interrupt_after", False)),
+        required_scopes=normalize_string_sequence(value.get("required_scopes")),
+        notes=normalize_string_sequence(value.get("notes")),
     )
 
 

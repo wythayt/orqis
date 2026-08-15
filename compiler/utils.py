@@ -112,11 +112,37 @@ def topological_layers(nodes: list[str], edges: Mapping[str, set[str]]) -> list[
     return layers
 
 
+def payload_units(value: Any) -> float:
+    if value is None:
+        return 0.0
+    if isinstance(value, str):
+        return max(1.0, len(value) / 32.0)
+    if isinstance(value, (int, float, bool)):
+        return 1.0
+    if isinstance(value, Mapping):
+        return 2.0 + sum(payload_units(key) + payload_units(val) for key, val in value.items())
+    if isinstance(value, set):
+        return 1.0 + sum(payload_units(item) for item in value)
+    if isinstance(value, (list, tuple)):
+        return 1.0 + sum(payload_units(item) for item in value)
+    return 3.0
+
+
 def to_jsonable(value: Any) -> Any:
     if is_dataclass(value):
         return {field.name: to_jsonable(getattr(value, field.name)) for field in fields(value)}
     if isinstance(value, Path):
         return str(value)
+    if hasattr(value, "model_dump") and callable(value.model_dump):
+        try:
+            return to_jsonable(value.model_dump())
+        except Exception:
+            pass
+    if hasattr(value, "dict") and callable(value.dict):
+        try:
+            return to_jsonable(value.dict())
+        except Exception:
+            pass
     if isinstance(value, Mapping):
         return {str(key): to_jsonable(val) for key, val in value.items()}
     if isinstance(value, set):

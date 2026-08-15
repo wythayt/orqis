@@ -47,8 +47,8 @@ def build_runtime_trace(
                     task_kind=task_kind,
                     node_id=task["name"],
                     triggers=list(task.get("triggers", ())),
-                    input_slice=dict(task.get("input", {})),
-                    result=dict(result_payload),
+                    input_slice=_payload_as_dict(task.get("input", {})),
+                    result=_payload_as_dict(result_payload),
                 )
             )
         for key, values in grouped_writes.items():
@@ -74,3 +74,10 @@ def build_runtime_trace(
             )
         )
     return traces
+
+
+def _payload_as_dict(payload: Any) -> dict[str, Any]:
+    if isinstance(payload, dict):
+        return dict(payload)
+    # wrap non-mapping payloads so the trace format stays uniform across agent graphs and state graphs.
+    return {"payload": payload}

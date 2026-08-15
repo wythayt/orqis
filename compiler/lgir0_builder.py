@@ -4,8 +4,10 @@ from typing import Any
 
 from langgraph.graph.state import CompiledStateGraph
 
+from orqis.annotations import extract_node_metadata
 from orqis.compiler.builder_common import (
     channel_kind,
+    extract_approval_policy,
     extract_cache_policy,
     extract_reducer,
     extract_resources,
@@ -13,6 +15,7 @@ from orqis.compiler.builder_common import (
     extract_side_effects,
     infer_branch_return_kind,
     normalize_sequence,
+    normalize_string_sequence,
 )
 from orqis.compiler.ir import EdgeIR0, GraphIR0, NodeIR0, StateKeyIR, StateSchemaIR
 from orqis.compiler.utils import callable_ref, sanitize_identifier, type_name, typed_dict_annotations, typed_dict_keys, unwrap_callable
@@ -75,7 +78,9 @@ def _extract_node_ir0(node_id: str, spec: Any) -> NodeIR0:
         kind = "Subgraph"
     elif not callable(runnable):
         kind = "Runnable"
+    # merge explicit node metadata with any @orqis(...) annotation on the callable.
     metadata = dict(spec.metadata or {})
+    metadata = {**extract_node_metadata(spec.runnable), **extract_node_metadata(runnable), **metadata}
     return NodeIR0(
         node_id=node_id,
         kind=kind,
@@ -89,6 +94,11 @@ def _extract_node_ir0(node_id: str, spec: Any) -> NodeIR0:
         resources=extract_resources(metadata),
         metadata=metadata,
         destinations_decl=sorted(getattr(spec, "ends", ()) or ()),
+        skill_ids=normalize_string_sequence(metadata.get("skills")),
+        tool_binding_ids=normalize_string_sequence(metadata.get("tool_bindings")),
+        subagent_id=metadata.get("subagent"),
+        executor_id=metadata.get("executor"),
+        approval_policy=extract_approval_policy(metadata),
     )
 
 

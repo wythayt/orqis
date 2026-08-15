@@ -88,6 +88,7 @@ class ResourceCandidateIR:
 @dataclass(slots=True)
 class ResourceOptimizationIR:
     partition_id: str
+    policy_id: str
     strategy: str
     initial_memory_mb: int | None
     initial_timeout_sec: int | None
@@ -102,6 +103,119 @@ class ResourceOptimizationIR:
     candidates: list[ResourceCandidateIR] = field(default_factory=list)
     reason: str = ""
     notes: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class ApprovalPolicyIR:
+    mode: str = "auto"
+    interrupt_before: bool = False
+    interrupt_after: bool = False
+    required_scopes: list[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class AssetRefIR:
+    asset_id: str
+    version: str | None = None
+    kind: str = "text"
+    uri: str | None = None
+    packaging: str = "inline"
+    size_bytes: int | None = None
+    content_type: str | None = None
+    checksum: str | None = None
+    mutable: bool = False
+    load_strategy: str = "lazy"
+    notes: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class MemoryPolicyIR:
+    policy_id: str
+    short_term_keys: list[str] = field(default_factory=list)
+    long_term_namespaces: list[str] = field(default_factory=list)
+    externalized_keys: list[str] = field(default_factory=list)
+    summarize_keys: list[str] = field(default_factory=list)
+    max_inline_bytes: int | None = None
+    notes: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class ExecutorClassIR:
+    executor_id: str
+    backend: str
+    runtime: str | None = None
+    packaging: str | None = None
+    filesystem: str | None = None
+    network_access: str = "none"
+    long_running: bool = False
+    supports_streaming: bool = False
+    resource_profile: ResourceIR | None = None
+    notes: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class ToolIR:
+    tool_id: str
+    tool_kind: str
+    callable_ref: str | None = None
+    description: str = ""
+    args_schema: str | None = None
+    return_schema: str | None = None
+    side_effects: SideEffectIR | None = None
+    resources: ResourceIR | None = None
+    retry_policy: RetryPolicyIR | None = None
+    cache_policy: CachePolicyIR | None = None
+    executor_id: str | None = None
+    required_asset_ids: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class ToolBindingIR:
+    binding_id: str
+    tool_id: str
+    scope_kind: str = "global"
+    scope_ref: str | None = None
+    visibility: str = "allowed"
+    requires_skill_id: str | None = None
+    approval_policy: ApprovalPolicyIR | None = None
+    argument_mapping: dict[str, str] = field(default_factory=dict)
+    state_updates: list[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class SkillManifestIR:
+    skill_id: str
+    version: str
+    description: str
+    prompt_asset_id: str | None = None
+    asset_ids: list[str] = field(default_factory=list)
+    tool_binding_ids: list[str] = field(default_factory=list)
+    subagent_ids: list[str] = field(default_factory=list)
+    state_schema: str | None = None
+    memory_policy_id: str | None = None
+    load_strategy: str = "on_demand"
+    inheritance: str = "explicit"
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class SubagentIR:
+    agent_id: str
+    graph_ref: str | None = None
+    callable_ref: str | None = None
+    system_prompt_asset_id: str | None = None
+    state_schema: str | None = None
+    skill_ids: list[str] = field(default_factory=list)
+    tool_binding_ids: list[str] = field(default_factory=list)
+    handoff_targets: list[str] = field(default_factory=list)
+    store_namespaces: list[str] = field(default_factory=list)
+    executor_id: str | None = None
+    memory_policy_id: str | None = None
+    inheritance: str = "isolated"
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 # graph-level view of one node before lowering to explicit pregel mechanics
 # close to what stategraph.add_node() receives
@@ -121,6 +235,11 @@ class NodeIR0:
     resources: ResourceIR | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
     destinations_decl: list[str] = field(default_factory=list)
+    skill_ids: list[str] = field(default_factory=list)
+    tool_binding_ids: list[str] = field(default_factory=list)
+    subagent_id: str | None = None
+    executor_id: str | None = None
+    approval_policy: ApprovalPolicyIR | None = None
 
 # graph-level control-flow edge
 # either a plain static edge or a conditional route that can emit node names or send payloads
@@ -152,6 +271,13 @@ class GraphIR0:
     nodes: dict[str, NodeIR0] = field(default_factory=dict)
     edges: list[EdgeIR0] = field(default_factory=list)
     subgraphs: dict[str, str] = field(default_factory=dict)
+    assets: dict[str, AssetRefIR] = field(default_factory=dict)
+    memory_policies: dict[str, MemoryPolicyIR] = field(default_factory=dict)
+    executors: dict[str, ExecutorClassIR] = field(default_factory=dict)
+    tools: dict[str, ToolIR] = field(default_factory=dict)
+    tool_bindings: dict[str, ToolBindingIR] = field(default_factory=dict)
+    skills: dict[str, SkillManifestIR] = field(default_factory=dict)
+    subagents: dict[str, SubagentIR] = field(default_factory=dict)
     options: dict[str, Any] = field(default_factory=dict)
 
 # pregel-level channel description
@@ -271,6 +397,49 @@ class CacheAnalysisIR:
     recommended_boundary: bool
     reason: str
 
+
+@dataclass(slots=True)
+class CapabilityAnalysisIR:
+    subject_id: str
+    subject_kind: str
+    executor_id: str | None = None
+    externalized_assets: list[str] = field(default_factory=list)
+    loaded_skills: list[str] = field(default_factory=list)
+    reachable_tools: list[str] = field(default_factory=list)
+    requires_interrupt: bool = False
+    notes: list[str] = field(default_factory=list)
+
+
+@dataclass(slots=True)
+class WorkProfileIR:
+    subject_id: str
+    subject_kind: str
+    body_kind: str
+    dominant_operations: list[str] = field(default_factory=list)
+    static_work_score: float = 0.0
+    payload_work_score: float = 0.0
+    intrinsic_work_score: float = 0.0
+    orchestration_overhead_score: float = 0.0
+    work_to_overhead_ratio: float = 0.0
+    observed_invocations: int = 1
+    observed_peak_concurrency: int = 1
+    avg_input_units: float = 0.0
+    max_input_units: float = 0.0
+    avg_result_units: float = 0.0
+    max_result_units: float = 0.0
+    payload_expansion_ratio: float = 1.0
+    fanout_role: str = "none"
+    loop_member: bool = False
+    effect_domains: list[str] = field(default_factory=list)
+    earned_partition: bool = False
+    earned_score: float = 0.0
+    granularity_hint: str = "keep"
+    recommended_batch_size: int | None = None
+    earned_reasons: list[str] = field(default_factory=list)
+    unearned_reasons: list[str] = field(default_factory=list)
+    theoretical_basis: list[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
+
 # all static-analysis outputs grouped into one object
 @dataclass(slots=True)
 class AnalysisBundle:
@@ -280,6 +449,8 @@ class AnalysisBundle:
     fanout_regions: list[FanoutRegionIR] = field(default_factory=list)
     loops: list[LoopIR] = field(default_factory=list)
     cache_analysis: list[CacheAnalysisIR] = field(default_factory=list)
+    capability_analysis: list[CapabilityAnalysisIR] = field(default_factory=list)
+    work_profiles: dict[str, WorkProfileIR] = field(default_factory=dict)
     side_effects: dict[str, SideEffectIR] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
@@ -321,6 +492,10 @@ class PartitionIR2:
     task_input_keys: list[str] = field(default_factory=list)
     write_set: list[str] = field(default_factory=list)
     emits_send: bool = False
+    asset_ids: list[str] = field(default_factory=list)
+    tool_binding_ids: list[str] = field(default_factory=list)
+    subagent_ids: list[str] = field(default_factory=list)
+    executor_id: str | None = None
     # if true, this partition still needs a superstep barrier before downstream
     # observers may see its writes
     requires_barrier_after: bool = True
@@ -332,6 +507,7 @@ class GraphIR2:
     ir_version: str
     graph_id: str
     partitions: dict[str, PartitionIR2] = field(default_factory=dict)
+    partition_work_profiles: dict[str, WorkProfileIR] = field(default_factory=dict)
     # lookup table used later by the planner: node id -> partition id.
     partitioned_task_model: dict[str, dict[str, str]] = field(default_factory=dict)
     # reverse loop lookup used by lowering when a looping scc spans multiple
@@ -358,6 +534,9 @@ class ServerlessPlanIR:
     persistence: dict[str, Any] = field(default_factory=dict)
     messaging: dict[str, Any] = field(default_factory=dict)
     compute: dict[str, Any] = field(default_factory=dict)
+    assets: dict[str, Any] = field(default_factory=dict)
+    tooling: dict[str, Any] = field(default_factory=dict)
+    agent_runtime: dict[str, Any] = field(default_factory=dict)
     orchestration: dict[str, Any] = field(default_factory=dict)
     security: dict[str, Any] = field(default_factory=dict)
     # canonical event shape expected by generated workers
@@ -402,6 +581,7 @@ class PassTraceIR:
 @dataclass(slots=True)
 class CompilationBundle:
     graph_id: str
+    resource_policy: str
     pass_trace: list[PassTraceIR]
     lgir0: GraphIR0
     lgir1: PregelIR1
