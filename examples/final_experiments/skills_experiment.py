@@ -55,7 +55,7 @@ SKILLS_CANDIDATES = [
         "Replay-safe two-worker loop without memory search.",
         [
             ws(MODEL_LOGICAL_ID, 1024, timeout_sec=30),
-            ws(TOOLS_LOGICAL_ID, 1024, timeout_sec=30, concurrency_limit=2),
+            ws(TOOLS_LOGICAL_ID, 1024, timeout_sec=30),
         ],
     ),
     CandidateConfig(
@@ -65,7 +65,7 @@ SKILLS_CANDIDATES = [
         ["m", "t"],
         [512, 512],
         DATASET_RANGE,
-        "Same partitioning as SK-B but with reduced memory tiers under the cost-oriented SLO profile.",
+        "Same partitioning as SK-B but with the model partition reduced under the cost-oriented SLO profile.",
         [
             ws(MODEL_LOGICAL_ID, 512, timeout_sec=30),
             ws(TOOLS_LOGICAL_ID, 512, timeout_sec=30, concurrency_limit=2),
@@ -93,7 +93,7 @@ SKILLS_CANDIDATES = [
         ["m", "t"],
         [1024, 512],
         DATASET_RANGE,
-        "Reliability pressure raises only the model partition back to 1024 MB while the tools partition stays reduced.",
+        "Reliability pressure keeps the model partition at the baseline tier while reducing the tool partition.",
         [
             ws(MODEL_LOGICAL_ID, 1024, timeout_sec=30),
             ws(TOOLS_LOGICAL_ID, 512, timeout_sec=30, concurrency_limit=2),
